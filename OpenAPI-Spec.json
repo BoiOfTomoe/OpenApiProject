@@ -1,4 +1,4 @@
-swagger: "2.0"
+Swagger:"2.0"
 info:
   description: ""
   version: "0.0.1"
@@ -64,7 +64,7 @@ paths:
       description: ""
       tags:
       - Listenverwaltung
-      operationId: "addList"
+      operationId: "getList"
       produces:
       - "application/json"
       consumes:
@@ -82,7 +82,78 @@ paths:
           schema:
             $ref: "#/definitions/TodoList"
         "500":
-          description: "List could not be added"
+          description: "List could not be added" 
+paths:
+  /users/{user_id}:
+    get:
+      summary: "Get all items from list"
+      description: ""
+      tags:
+      - Listenverwaltung
+      operationId: "getList"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "list_id"
+        type: string
+        description: "list id"
+        required: true
+      responses:
+        "200":
+        description: "List item returned"
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/TodoEntry"
+        "404":
+          description: "Invalid list id"   
+    delete:
+      summary: "Delete a user"
+      description: ""
+      tags:
+      - Listenverwaltung
+      operationId: "deleteUser"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "user_id"
+        type: string
+        description: "user id"
+        required: true
+      responses:
+        "200":
+          description: "User was deleted"
+        "404":
+          description: "Invalid user"          
+  /users:        
+    post:
+      summary: "Give back list of users"
+      description: ""
+      tags:
+      - Listenverwaltung
+      operationId: "addList"
+      produces:
+      - "application/json"
+      consumes:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "list object"
+        required: true
+        schema:
+          $ref: "#/definitions/TodoList"
+      responses:
+        "200":
+          description: "List item returned"
+          schema:
+        type: "array"
+          items:
+            $ref: "#/definitions/users"
+        "404":
+          description: "Could not retrieve list"                     
 definitions:
   TodoList:
     type: "object"

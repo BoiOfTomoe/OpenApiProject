@@ -16,9 +16,9 @@ from flask import Flask, request, jsonify, abort
 app = Flask(__name__)
 
 # create unique id for lists, users, entries
-user_id_bob = uuid.uuid4()
-user_id_alice = uuid.uuid4()
-user_id_eve = uuid.uuid4()
+user_id_jannik = uuid.uuid4()
+user_id_sadie = uuid.uuid4()
+user_id_jana = uuid.uuid4()
 todo_list_1_id = '1318d3d1-d979-47e1-a225-dab1751dbe75'
 todo_list_2_id = '3062dc25-6b80-4315-bb1d-a7c86b014c65'
 todo_list_3_id = '44b02e00-03bc-451d-8d01-0c67ea866fee'
@@ -29,9 +29,9 @@ todo_4_id = uuid.uuid4()
 
 # define internal data structures with example data
 user_list = [
-    {'id': user_id_bob, 'name': 'Bob'},
-    {'id': user_id_alice, 'name': 'Alice'},
-    {'id': user_id_eve, 'name': 'Eve'},
+    {'id': user_id_jannik, 'name': 'Jannik'},
+    {'id': user_id_sadie, 'name': 'Sadie'},
+    {'id': user_id_jana, 'name': 'Jana'},
 ]
 todo_lists = [
     {'id': todo_list_1_id, 'name': 'Einkaufsliste'},
@@ -39,10 +39,10 @@ todo_lists = [
     {'id': todo_list_3_id, 'name': 'Privat'},
 ]
 todos = [
-    {'id': todo_1_id, 'name': 'Milch', 'description': '', 'list': todo_list_1_id, 'user': user_id_bob},
-    {'id': todo_2_id, 'name': 'Arbeitsblätter ausdrucken', 'description': '', 'list': todo_list_2_id, 'user': user_id_alice},
-    {'id': todo_3_id, 'name': 'Kinokarten kaufen', 'description': '', 'list': todo_list_3_id, 'user': user_id_eve},
-    {'id': todo_3_id, 'name': 'Eier', 'description': '', 'list': todo_list_1_id, 'user': user_id_eve},
+    {'id': todo_1_id, 'name': 'Milch', 'description': '', 'list': todo_list_1_id, 'user': user_id_jannik},
+    {'id': todo_2_id, 'name': 'Arbeitsblätter ausdrucken', 'description': '', 'list': todo_list_2_id, 'user': user_id_sadie},
+    {'id': todo_3_id, 'name': 'Kinokarten kaufen', 'description': '', 'list': todo_list_3_id, 'user': user_id_jana},
+    {'id': todo_3_id, 'name': 'Eier', 'description': '', 'list': todo_list_1_id, 'user': user_id_jana},
 ]
 
 # add some headers to allow cross origin access to the API on this server, necessary for using preview in Swagger Editor!
@@ -93,6 +93,43 @@ def add_new_list():
 def get_all_lists():
     return jsonify(todo_lists)
 
+# define endpoint for getting user list
+@app.route('/users', methods=['GET'])
+def get_all_users():
+    return jsonify(user_list)
+
+# define endpoint for adding a new user
+@app.route('/users', methods=['POST'])
+def add_new_user():
+    # make JSON from POST data (even if content type is not set correctly)
+    new_user = request.get_json(force=True)
+    print('Got new user to be added: {}'.format(new_user))
+    # create id for new user, save it and return the user with id
+    new_user['id'] = uuid.uuid4()
+    user_list.append(new_user)
+    return jsonify(new_user), 200
+
+# define endpoint for getting and deleting existing user
+@app.route('/users/<user_id>', methods=['GET', 'DELETE'])
+def handle_list(user_id):
+    # find todo list depending on given list id
+    user_id = None
+    for l in user_list:
+        if l['id'] == user_id:
+            user_id = l
+            break
+    # if the given list id is invalid, return status code 404
+    if not user_id:
+        abort(404)
+    if request.method == 'GET':
+        # find all todo entries for the todo list with the given id
+        print('Returning user')
+        return jsonify([i for i in user_id if i['user'] == user_id])
+    elif request.method == 'DELETE':
+        # delete list with given id
+        print('Deleting user')
+        user_list.remove(user_id)
+        return '', 200
 
 if __name__ == '__main__':
     # start Flask server
